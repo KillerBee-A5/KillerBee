@@ -1,0 +1,15 @@
+http:
+  routers:
+    traefik-dashboard:
+      rule: "PathPrefix(`/traefik`)"
+      service: api@internal
+      entryPoints:
+        - web
+      middlewares:
+        - traefik-dashboard-auth
+
+  middlewares:
+    traefik-dashboard-auth:
+      basicAuth:
+        users:
+          - "admin:$$apr1$$H6uskkkW$$IgXLP6ewTrSuBkTrqE8wj/"  # Remplacez par vos propres identifiants hashés
