@@ -1,6 +1,6 @@
 import { Request, Response, NextFunction } from "express";
 import { getConnectionPool } from "../services/db";
-import { ETAPE } from "../models/etape";
+import { ETAPE } from "../models/ETAPE";
 import sql from "mssql";
 
 export const getAllEtapes = async (

@@ -1,6 +1,6 @@
 import { Request, Response, NextFunction } from "express";
 import { getConnectionPool } from "../services/db";
-import { GAMME } from "../models/gamme";
+import { GAMME } from "../models/GAMME";
 import sql from "mssql";
 
 export const getAllGammes = async (

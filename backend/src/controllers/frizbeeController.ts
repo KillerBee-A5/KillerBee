@@ -1,7 +1,7 @@
 import { Request, Response, NextFunction } from "express";
 import { getConnectionPool } from "../services/db";
-import { FRIZBEE } from "../models/frizbee";
-import { INGREDIENT } from "../models/ingredient";
+import { FRIZBEE } from "../models/FRIZBEE";
+import { INGREDIENT } from "../models/INGREDIENT";
 import { caesarEncrypt, caesarDecrypt } from "../utils/caesarCipher";
 import sql from "mssql";
 
