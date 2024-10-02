@@ -1,6 +1,6 @@
 import { Request, Response, NextFunction } from "express";
 import { getConnectionPool } from "../services/db";
-import { CONSTITUER } from "../models/constituer";
+import { CONSTITUER } from "../models/CONSTITUER";
 import sql from "mssql";
 
 export const getAllConstituer = async (
