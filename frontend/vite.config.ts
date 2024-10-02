@@ -9,6 +9,6 @@ export default defineConfig({
   },
   server: {
     port: 3001,
-    host: process.env.FRONTEND_DOMAIN,
+    host: process.env.VITE_HOST ?? "localhost",
   },
 });

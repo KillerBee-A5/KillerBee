@@ -3,7 +3,7 @@ import { caesarEncrypt, caesarDecrypt } from "./utils/cipher";
 
 // Créer une instance Axios
 const axiosInstance = axios.create({
-  baseURL: "http://localhost/api",
+  baseURL: import.meta.env.VITE_API_URL,
 });
 
 // Intercepteur de requête pour chiffrer les données
@@ -23,7 +23,7 @@ axiosInstance.interceptors.request.use(
     return config;
   },
   (error) => {
-    return Promise.reject(error);
+    return Promise.reject(error instanceof Error ? error : new Error(error));
   },
 );
 

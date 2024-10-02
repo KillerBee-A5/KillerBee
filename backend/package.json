@@ -2,7 +2,7 @@
   "scripts": {
     "build": "tsc",
     "start": "node dist/server.js",
-    "dev": "ts-node src/server.ts",
+    "dev": "nodemon",
     "watch": "tsc -w"
   },
   "dependencies": {
@@ -12,6 +12,7 @@
     "express": "^4.21.0",
     "joi": "^17.13.3",
     "mssql": "^11.0.1",
+    "nodemon": "^3.1.7",
     "ts-node": "^10.9.2"
   },
   "devDependencies": {

@@ -3,9 +3,9 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "dev": "vite --host",
+    "dev": "vite",
     "build": "vite build",
-    "serve": "vite preview",
+    "serve": "vite preview --host",
     "type-check": "tsc --noEmit",
     "lint": "eslint --fix --ext .js,.jsx,.ts,.tsx ./src",
     "format": "prettier --write ./src"
