@@ -1,6 +1,6 @@
 import { Request, Response, NextFunction } from "express";
 import { getConnectionPool } from "../services/db";
-import { INGREDIENT } from "../models/INGREDIENT";
+import { INGREDIENT } from "../models";
 import sql from "mssql";
 
 export const getAllIngredients = async (
