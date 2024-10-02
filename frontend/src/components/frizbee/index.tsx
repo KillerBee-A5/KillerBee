@@ -1,3 +1,6 @@
+// src/components/frizbee/FrizbeeList.tsx
+
+import React from "react";
 import {
   List,
   Datagrid,
@@ -5,23 +8,37 @@ import {
   NumberField,
   EditButton,
   DeleteButton,
-  Edit,
+  ReferenceField,
+  ListProps,
+  CreateProps,
+  Create,
   SimpleForm,
   TextInput,
   NumberInput,
-  Create,
+  ReferenceInput,
+  SelectInput,
+  EditProps,
+  Edit,
 } from "react-admin";
 
-export const FrizbeeList = () => (
-  <List>
+export const FrizbeeList: React.FC<ListProps> = (props) => (
+  <List {...props}>
     <Datagrid>
-      <TextField source="ID_FRIZBEE" label="ID" />
+      <TextField source="id" label="ID" />
       <TextField source="NOM_FRIZBEE" label="Nom" />
       <TextField source="DESCRIPTION_FRIZBEE" label="Description" />
-      <NumberField source="PUHT" label="PUHT" />
+      <NumberField
+        source="PUHT"
+        label="Prix HT"
+        options={{ minimumFractionDigits: 2 }}
+      />
       <NumberField source="STOCK" label="Stock" />
-      <NumberField source="ID_PROCEDE" label="ID Procede" />
-      <NumberField source="ID_GAMME" label="ID Gamme" />
+      <ReferenceField label="Gamme" source="ID_GAMME" reference="gammes">
+        <TextField source="NOM_GAMME" />
+      </ReferenceField>
+      <ReferenceField label="Procédé" source="ID_PROCEDE" reference="procedes">
+        <TextField source="NOM_PROCEDE" />
+      </ReferenceField>
       <NumberField source="ORDRE" label="Ordre" />
       <EditButton />
       <DeleteButton />
@@ -29,31 +46,39 @@ export const FrizbeeList = () => (
   </List>
 );
 
-export const FrizbeeEdit = () => (
-  <Edit>
+export const FrizbeeCreate: React.FC<CreateProps> = (props) => (
+  <Create {...props}>
     <SimpleForm>
-      <TextInput disabled source="ID_FRIZBEE" label="ID" />
       <TextInput source="NOM_FRIZBEE" label="Nom" />
       <TextInput source="DESCRIPTION_FRIZBEE" label="Description" />
-      <NumberInput source="PUHT" label="PUHT" />
+      <NumberInput source="PUHT" label="Prix unitaire HT" />
       <NumberInput source="STOCK" label="Stock" />
-      <NumberInput source="ID_PROCEDE" label="ID Procede" />
-      <NumberInput source="ID_GAMME" label="ID Gamme" />
+      <ReferenceInput label="Gamme" source="ID_GAMME" reference="gammes">
+        <SelectInput optionText="NOM_GAMME" />
+      </ReferenceInput>
+      <ReferenceInput label="Procédé" source="ID_PROCEDE" reference="procedes">
+        <SelectInput optionText="NOM_PROCEDE" />
+      </ReferenceInput>
+      <NumberInput source="ORDRE" label="Ordre" />
+    </SimpleForm>
+  </Create>
+);
+
+export const FrizbeeEdit: React.FC<EditProps> = (props) => (
+  <Edit {...props}>
+    <SimpleForm>
+      <TextInput source="NOM_FRIZBEE" label="Nom" />
+      <TextInput source="DESCRIPTION_FRIZBEE" label="Description" />
+      <NumberInput source="PUHT" label="Prix unitaire HT" />
+      <NumberInput source="STOCK" label="Stock" />
+      <ReferenceInput label="Gamme" source="ID_GAMME" reference="gammes">
+        <SelectInput optionText="NOM_GAMME" />
+      </ReferenceInput>
+      <ReferenceInput label="Procédé" source="ID_PROCEDE" reference="procedes">
+        <SelectInput optionText="NOM_PROCEDE" />
+      </ReferenceInput>
       <NumberInput source="ORDRE" label="Ordre" />
     </SimpleForm>
   </Edit>
 );
 
-export const FrizbeeCreate = () => (
-  <Create>
-    <SimpleForm>
-      <TextInput source="NOM_FRIZBEE" label="Nom" />
-      <TextInput source="DESCRIPTION_FRIZBEE" label="Description" />
-      <NumberInput source="PUHT" label="PUHT" />
-      <NumberInput source="STOCK" label="Stock" />
-      <NumberInput source="ID_PROCEDE" label="ID Procede" />
-      <NumberInput source="ID_GAMME" label="ID Gamme" />
-      <NumberInput source="ORDRE" label="Ordre" />
-    </SimpleForm>
-  </Create>
-);

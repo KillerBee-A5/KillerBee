@@ -54,13 +54,6 @@ build/
 .env
 .env.*.local
 
-# Docker
-Dockerfile
-docker-compose.yml
-.dockerignore
-.env.docker
-*.env
-
 # Bundlers et frameworks spécifiques
 .next/
 out/
