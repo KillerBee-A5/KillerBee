@@ -1,6 +1,6 @@
 import { Request, Response, NextFunction } from "express";
 import { getConnectionPool } from "../services/db";
-import { COMPOSER } from "../models/COMPOSER";
+import { COMPOSER } from "../models";
 import sql from "mssql";
 
 export const getAllComposer = async (
