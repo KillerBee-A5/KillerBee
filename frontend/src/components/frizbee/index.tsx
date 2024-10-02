@@ -1,5 +1,3 @@
-// src/components/frizbee/FrizbeeList.tsx
-
 import React from "react";
 import {
   List,
@@ -10,17 +8,18 @@ import {
   DeleteButton,
   ReferenceField,
   ListProps,
-  CreateProps,
   Create,
   SimpleForm,
   TextInput,
   NumberInput,
   ReferenceInput,
   SelectInput,
-  EditProps,
+  CreateProps,
   Edit,
+  EditProps,
 } from "react-admin";
 
+// Liste des Frizbees
 export const FrizbeeList: React.FC<ListProps> = (props) => (
   <List {...props}>
     <Datagrid>
@@ -46,6 +45,7 @@ export const FrizbeeList: React.FC<ListProps> = (props) => (
   </List>
 );
 
+// Création d'un Frizbee
 export const FrizbeeCreate: React.FC<CreateProps> = (props) => (
   <Create {...props}>
     <SimpleForm>
@@ -64,6 +64,7 @@ export const FrizbeeCreate: React.FC<CreateProps> = (props) => (
   </Create>
 );
 
+// Édition d'un Frizbee
 export const FrizbeeEdit: React.FC<EditProps> = (props) => (
   <Edit {...props}>
     <SimpleForm>
@@ -81,4 +82,3 @@ export const FrizbeeEdit: React.FC<EditProps> = (props) => (
     </SimpleForm>
   </Edit>
 );
-

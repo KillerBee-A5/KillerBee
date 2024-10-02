@@ -6,14 +6,15 @@ import {
   EditButton,
   DeleteButton,
   ListProps,
-  CreateProps,
   Create,
   SimpleForm,
   TextInput,
-  EditProps,
+  CreateProps,
   Edit,
+  EditProps,
 } from "react-admin";
 
+// Liste des Gammes
 export const GammeList: React.FC<ListProps> = (props) => (
   <List {...props}>
     <Datagrid>
@@ -25,6 +26,7 @@ export const GammeList: React.FC<ListProps> = (props) => (
   </List>
 );
 
+// Création d'une Gamme
 export const GammeCreate: React.FC<CreateProps> = (props) => (
   <Create {...props}>
     <SimpleForm>
@@ -33,6 +35,7 @@ export const GammeCreate: React.FC<CreateProps> = (props) => (
   </Create>
 );
 
+// Édition d'une Gamme
 export const GammeEdit: React.FC<EditProps> = (props) => (
   <Edit {...props}>
     <SimpleForm>
