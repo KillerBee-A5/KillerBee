@@ -1,5 +1,4 @@
 import { Admin, Resource } from "react-admin";
-import { Layout } from "./Layout";
 import dataProvider from "./dataProvider";
 import { GammeList, GammeCreate, GammeEdit } from "./components/gamme";
 import { EtapeList, EtapeCreate, EtapeEdit } from "./components/etape";
@@ -12,7 +11,7 @@ import {
 import { FrizbeeList, FrizbeeCreate, FrizbeeEdit } from "./components/frizbee";
 
 export const App = () => (
-  <Admin layout={Layout} dataProvider={dataProvider}>
+  <Admin dataProvider={dataProvider}>
     <Resource
       name="gammes"
       list={GammeList}
