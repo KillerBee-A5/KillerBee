@@ -1,137 +1,181 @@
 import {
-  DataProvider,
-  DeleteManyParams,
-  DeleteManyResult,
   fetchUtils,
+  DataProvider,
+  GetListParams,
+  GetListResult,
+  GetOneParams,
+  GetOneResult,
+  CreateParams,
+  CreateResult,
+  UpdateParams,
+  UpdateResult,
+  DeleteParams,
+  DeleteResult,
   GetManyParams,
+  GetManyResult,
   GetManyReferenceParams,
   GetManyReferenceResult,
-  GetManyResult,
-  QueryFunctionContext,
   RaRecord,
-  UpdateManyParams,
-  UpdateManyResult,
 } from "react-admin";
 import { stringify } from "query-string";
-import { caesarEncrypt, caesarDecrypt } from "./utils/caesarCipher";
+import { encryptData, decryptData } from "./utils/cryptoUtils";
 
 const apiUrl = import.meta.env.VITE_API_URL;
 const httpClient = fetchUtils.fetchJson;
 
-const mapId = (resource: string, data: any[]): any[] => {
-  return data.map((item) => {
-    switch (resource) {
-      case "gammes":
-        return { ...item, id: item.ID_GAMME };
-      case "etapes":
-        return { ...item, id: item.ID_ETAPE };
-      case "procedes":
-        return { ...item, id: item.ID_PROCEDE };
-      case "ingredients":
-        return { ...item, id: item.ID_INGREDIENT };
-      case "frizbees":
-        return { ...item, id: item.ID_FRIZBEE };
-      default:
-        return item;
-    }
-  });
+/**
+ * Fonction pour chiffrer tous les champs string dans les données avant envoi
+ */
+const encryptParams = <T extends RaRecord>(
+  params: CreateParams<T> | UpdateParams<T>,
+): CreateParams<T> | UpdateParams<T> => {
+  const encryptedParams = { ...params };
+  if (encryptedParams.data) {
+    encryptedParams.data = encryptData(encryptedParams.data);
+  }
+  return encryptedParams;
 };
 
+/**
+ * Fonction pour déchiffrer tous les champs string dans les données reçues
+ */
+const decryptResponse = <T extends RaRecord>(data: T): T => {
+  const decryptedData = decryptData(data);
+  return { ...decryptedData, id: decryptedData.id };
+};
+
+/**
+ * Data Provider Généralisé
+ */
 const dataProvider: DataProvider = {
-  getList: (resource, params) => {
-    const query = {
-      // Ajoutez les paramètres de pagination et de tri si nécessaire
-    };
+  getList: <T extends RaRecord>(
+    resource: string,
+    params: GetListParams,
+  ): Promise<GetListResult<T>> => {
+    const { pagination } = params;
+
+    let query;
+
+    if (pagination) {
+      const { page, perPage } = pagination;
+      query = {
+        sort: JSON.stringify(params.sort),
+        range: JSON.stringify([(page - 1) * perPage, page * perPage - 1]),
+        filter: JSON.stringify(params.filter),
+      };
+    } else {
+      query = {
+        sort: JSON.stringify(params.sort),
+        filter: JSON.stringify(params.filter),
+      };
+    }
     const url = `${apiUrl}/${resource}?${stringify(query)}`;
 
     return httpClient(url).then(({ headers, json }) => {
-      if (resource === "frizbees") {
-        json = json.map((item: any) => {
-          item.DESCRIPTION_FRIZBEE = caesarDecrypt(item.DESCRIPTION_FRIZBEE);
-          return item;
-        });
-      }
-      const data = mapId(resource, json);
+      const data = (json as T[]).map(decryptResponse);
+      const total = parseInt(
+        headers.get("content-range")?.split("/").pop() ??
+          data.length.toString(),
+        10,
+      );
       return {
         data,
-        total: data.length,
+        total,
       };
     });
   },
 
-  getOne: (resource, params) =>
-    httpClient(`${apiUrl}/${resource}/${params.id}`).then(({ json }) => {
-      if (resource === "frizbees") {
-        json.DESCRIPTION_FRIZBEE = caesarDecrypt(json.DESCRIPTION_FRIZBEE);
-      }
-      const data = mapId(resource, [json])[0];
-      return { data };
-    }),
+  getOne: <T extends RaRecord>(
+    resource: string,
+    params: GetOneParams,
+  ): Promise<GetOneResult<T>> =>
+    httpClient(`${apiUrl}/${resource}/${params.id}`).then(({ json }) => ({
+      data: decryptResponse(json as T),
+    })),
 
-  create: (resource, params) => {
-    if (resource === "frizbees") {
-      params.data.DESCRIPTION_FRIZBEE = caesarEncrypt(
-        params.data.DESCRIPTION_FRIZBEE,
-      );
-    }
+  create: <T extends RaRecord>(
+    resource: string,
+    params: CreateParams<T>,
+  ): Promise<CreateResult<T>> => {
+    const encryptedParams = encryptParams(params);
+
     return httpClient(`${apiUrl}/${resource}`, {
       method: "POST",
-      body: JSON.stringify(params.data),
-    }).then(({ json }) => {
-      const data = mapId(resource, [json])[0];
-      return { data };
-    });
+      body: JSON.stringify(encryptedParams.data),
+    }).then(({ json }) => ({
+      data: decryptResponse(json as T),
+    }));
   },
 
-  update: (resource, params) => {
-    if (resource === "frizbees") {
-      params.data.DESCRIPTION_FRIZBEE = caesarEncrypt(
-        params.data.DESCRIPTION_FRIZBEE,
-      );
-    }
+  update: <T extends RaRecord>(
+    resource: string,
+    params: UpdateParams<T>,
+  ): Promise<UpdateResult<T>> => {
+    const encryptedParams = encryptParams(params);
+
     return httpClient(`${apiUrl}/${resource}/${params.id}`, {
       method: "PUT",
-      body: JSON.stringify(params.data),
-    }).then(({ json }) => {
-      const data = mapId(resource, [json])[0];
-      return { data };
-    });
+      body: JSON.stringify(encryptedParams.data),
+    }).then(({ json }) => ({
+      data: decryptResponse(json as T),
+    }));
   },
 
-  delete: (resource, params) =>
+  delete: <T extends RaRecord>(
+    resource: string,
+    params: DeleteParams,
+  ): Promise<DeleteResult<T>> =>
     httpClient(`${apiUrl}/${resource}/${params.id}`, {
       method: "DELETE",
-    }).then(({ json }) => {
-      const data = mapId(resource, [json])[0];
-      return { data };
-    }),
+    }).then(({ json }) => ({
+      data: decryptResponse(json as T),
+    })),
 
-  getMany: function <RecordType extends RaRecord = any>(
+  getMany: <T extends RaRecord>(
     resource: string,
-    params: GetManyParams<RecordType> & QueryFunctionContext,
-  ): Promise<GetManyResult<RecordType>> {
-    throw new Error("Function not implemented.");
+    params: GetManyParams<T>,
+  ): Promise<GetManyResult<T>> => {
+    const query = {
+      filter: JSON.stringify({ id: params.ids }),
+    };
+    const url = `${apiUrl}/${resource}?${stringify(query)}`;
+    return httpClient(url).then(({ json }) => ({
+      data: (json as T[]).map(decryptResponse),
+    }));
   },
 
-  getManyReference: function <RecordType extends RaRecord = any>(
+  getManyReference: <T extends RaRecord>(
     resource: string,
-    params: GetManyReferenceParams & QueryFunctionContext,
-  ): Promise<GetManyReferenceResult<RecordType>> {
-    throw new Error("Function not implemented.");
+    params: GetManyReferenceParams,
+  ): Promise<GetManyReferenceResult<T>> => {
+    const { pagination } = params;
+    const { page, perPage } = pagination;
+
+    const query = {
+      sort: JSON.stringify(params.sort),
+      range: JSON.stringify([(page - 1) * perPage, page * perPage - 1]),
+      filter: JSON.stringify({ ...params.filter, [params.target]: params.id }),
+    };
+    const url = `${apiUrl}/${resource}?${stringify(query)}`;
+
+    return httpClient(url).then(({ headers, json }) => ({
+      data: (json as T[]).map(decryptResponse),
+      total: parseInt(
+        headers.get("content-range")?.split("/").pop() ??
+          json.length.toString(),
+        10,
+      ),
+    }));
   },
 
-  updateMany: function <RecordType extends RaRecord = any>(
-    resource: string,
-    params: UpdateManyParams,
-  ): Promise<UpdateManyResult<RecordType>> {
-    throw new Error("Function not implemented.");
+  updateMany: (resource, params) => {
+    // Implémentez si nécessaire
+    return Promise.reject(new Error("updateMany not implemented"));
   },
 
-  deleteMany: function <RecordType extends RaRecord = any>(
-    resource: string,
-    params: DeleteManyParams<RecordType>,
-  ): Promise<DeleteManyResult<RecordType>> {
-    throw new Error("Function not implemented.");
+  deleteMany: (resource, params) => {
+    // Implémentez si nécessaire
+    return Promise.reject(new Error("deleteMany not implemented"));
   },
 };
 

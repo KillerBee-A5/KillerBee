@@ -68,6 +68,7 @@ export const FrizbeeCreate: React.FC<CreateProps> = (props) => (
 export const FrizbeeEdit: React.FC<EditProps> = (props) => (
   <Edit {...props}>
     <SimpleForm>
+      <TextInput disabled source="id" label="ID" />
       <TextInput source="NOM_FRIZBEE" label="Nom" />
       <TextInput source="DESCRIPTION_FRIZBEE" label="Description" />
       <NumberInput source="PUHT" label="Prix unitaire HT" />

@@ -1,62 +1,102 @@
+// src/controllers/constituerController.ts
 import { Request, Response, NextFunction } from "express";
-import { getConnectionPool } from "../services/db";
-import { CONSTITUER } from "../models";
-import sql from "mssql";
+import { ConstituerService } from "../services/constituerService";
 
-export const getAllConstituer = async (
+const constituerService = new ConstituerService();
+
+/**
+ * Récupère tous les CONSTITUER.
+ */
+export const getAllConstituers = async (
     req: Request,
-    res: Response<CONSTITUER[]>,
+    res: Response,
     next: NextFunction
 ) => {
     try {
-        const pool = await getConnectionPool();
-        const result = await pool
-            .request()
-            .query("SELECT * FROM dbo.CONSTITUER");
-        res.json(result.recordset);
+        const constituers = await constituerService.getAll();
+        res.json(constituers);
     } catch (err) {
         next(err);
     }
 };
 
+/**
+ * Récupère un CONSTITUER par ID_FRIZBEE.
+ */
+export const getConstituerById = async (
+    req: Request<{ id: string }>,
+    res: Response,
+    next: NextFunction
+) => {
+    try {
+        const id = parseInt(req.params.id);
+        const constituer = await constituerService.getById(id);
+        if (!constituer) {
+            res.status(404).json({ message: "Constituer not found" });
+        } else {
+            res.json(constituer);
+        }
+    } catch (err) {
+        next(err);
+    }
+};
+
+/**
+ * Crée un nouveau CONSTITUER.
+ */
 export const createConstituer = async (
-    req: Request<{}, {}, CONSTITUER>,
-    res: Response<{ message: string }>,
+    req: Request,
+    res: Response,
     next: NextFunction
 ) => {
     try {
-        const { ID_FRIZBEE, ID_INGREDIENT, GRAMMAGE } = req.body;
-        const pool = await getConnectionPool();
-        await pool
-            .request()
-            .input("ID_FRIZBEE", sql.Int, ID_FRIZBEE)
-            .input("ID_INGREDIENT", sql.Int, ID_INGREDIENT)
-            .input("GRAMMAGE", sql.Decimal(10, 2), GRAMMAGE).query(`
-        INSERT INTO dbo.CONSTITUER (ID_FRIZBEE, ID_INGREDIENT, GRAMMAGE)
-        VALUES (@ID_FRIZBEE, @ID_INGREDIENT, @GRAMMAGE)
-      `);
-        res.status(201).json({ message: "Association created successfully" });
+        const newConstituer = await constituerService.create(req.body);
+        res.status(201).json(newConstituer);
     } catch (err) {
         next(err);
     }
 };
 
-export const deleteConstituer = async (
-    req: Request<{}, {}, { ID_FRIZBEE: number; ID_INGREDIENT: number }>,
-    res: Response<{ message: string }>,
+/**
+ * Met à jour un CONSTITUER existant.
+ */
+export const updateConstituer = async (
+    req: Request<{ id: string }>,
+    res: Response,
     next: NextFunction
 ) => {
     try {
-        const { ID_FRIZBEE, ID_INGREDIENT } = req.body;
-        const pool = await getConnectionPool();
-        await pool
-            .request()
-            .input("ID_FRIZBEE", sql.Int, ID_FRIZBEE)
-            .input("ID_INGREDIENT", sql.Int, ID_INGREDIENT).query(`
-        DELETE FROM dbo.CONSTITUER
-        WHERE ID_FRIZBEE = @ID_FRIZBEE AND ID_INGREDIENT = @ID_INGREDIENT
-      `);
-        res.json({ message: "Association deleted successfully" });
+        const id = parseInt(req.params.id);
+        const updatedConstituer = await constituerService.update(id, req.body);
+        if (!updatedConstituer) {
+            res.status(404).json({ message: "Constituer not found" });
+        } else {
+            res.json(updatedConstituer);
+        }
+    } catch (err) {
+        next(err);
+    }
+};
+
+/**
+ * Supprime un CONSTITUER par ID_FRIZBEE.
+ */
+export const deleteConstituer = async (
+    req: Request<{ id: string }>,
+    res: Response,
+    next: NextFunction
+) => {
+    try {
+        const id = parseInt(req.params.id);
+        const deletedConstituer = await constituerService.delete(id);
+        if (!deletedConstituer) {
+            res.status(404).json({ message: "Constituer not found" });
+        } else {
+            res.json({
+                message: "Constituer deleted successfully",
+                constituer: deletedConstituer,
+            });
+        }
     } catch (err) {
         next(err);
     }

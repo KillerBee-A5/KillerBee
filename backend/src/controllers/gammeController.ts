@@ -1,36 +1,36 @@
+// src/controllers/gammeController.ts
 import { Request, Response, NextFunction } from "express";
-import { getConnectionPool } from "../services/db";
-import { GAMME } from "../models";
-import sql from "mssql";
+import { GammeService } from "../services/gammeService";
 
+const gammeService = new GammeService();
+
+/**
+ * Récupère toutes les GAMME.
+ */
 export const getAllGammes = async (
     req: Request,
-    res: Response<GAMME[]>,
+    res: Response,
     next: NextFunction
 ) => {
     try {
-        const pool = await getConnectionPool();
-        const result = await pool.request().query("SELECT * FROM dbo.GAMME");
-        res.json(result.recordset);
+        const gammes = await gammeService.getAll();
+        res.json(gammes);
     } catch (err) {
         next(err);
     }
 };
 
+/**
+ * Récupère une GAMME par ID_GAMME.
+ */
 export const getGammeById = async (
     req: Request<{ id: string }>,
-    res: Response<GAMME | { message: string }>,
+    res: Response,
     next: NextFunction
 ) => {
     try {
-        const { id } = req.params;
-        const pool = await getConnectionPool();
-        const result = await pool
-            .request()
-            .input("ID_GAMME", sql.Int, parseInt(id))
-            .query("SELECT * FROM dbo.GAMME WHERE ID_GAMME = @ID_GAMME");
-
-        const gamme = result.recordset[0];
+        const id = parseInt(req.params.id);
+        const gamme = await gammeService.getById(id);
         if (!gamme) {
             res.status(404).json({ message: "Gamme not found" });
         } else {
@@ -41,47 +41,33 @@ export const getGammeById = async (
     }
 };
 
+/**
+ * Crée une nouvelle GAMME.
+ */
 export const createGamme = async (
-    req: Request<{}, {}, Omit<GAMME, "ID_GAMME">>,
-    res: Response<GAMME>,
+    req: Request,
+    res: Response,
     next: NextFunction
 ) => {
     try {
-        const { NOM_GAMME } = req.body;
-        const pool = await getConnectionPool();
-        const result = await pool
-            .request()
-            .input("NOM_GAMME", sql.VarChar(100), NOM_GAMME).query(`
-        INSERT INTO dbo.GAMME (NOM_GAMME)
-        OUTPUT INSERTED.*
-        VALUES (@NOM_GAMME)
-      `);
-        res.status(201).json(result.recordset[0]);
+        const newGamme = await gammeService.create(req.body);
+        res.status(201).json(newGamme);
     } catch (err) {
         next(err);
     }
 };
 
+/**
+ * Met à jour une GAMME existante.
+ */
 export const updateGamme = async (
-    req: Request<{ id: string }, {}, Omit<GAMME, "ID_GAMME">>,
-    res: Response<GAMME | { message: string }>,
+    req: Request<{ id: string }>,
+    res: Response,
     next: NextFunction
 ) => {
     try {
-        const { id } = req.params;
-        const { NOM_GAMME } = req.body;
-        const pool = await getConnectionPool();
-        const result = await pool
-            .request()
-            .input("ID_GAMME", sql.Int, parseInt(id))
-            .input("NOM_GAMME", sql.VarChar(100), NOM_GAMME).query(`
-        UPDATE dbo.GAMME
-        SET NOM_GAMME = @NOM_GAMME
-        OUTPUT INSERTED.*
-        WHERE ID_GAMME = @ID_GAMME
-      `);
-
-        const updatedGamme = result.recordset[0];
+        const id = parseInt(req.params.id);
+        const updatedGamme = await gammeService.update(id, req.body);
         if (!updatedGamme) {
             res.status(404).json({ message: "Gamme not found" });
         } else {
@@ -92,23 +78,17 @@ export const updateGamme = async (
     }
 };
 
+/**
+ * Supprime une GAMME par ID_GAMME.
+ */
 export const deleteGamme = async (
     req: Request<{ id: string }>,
-    res: Response<{ message: string; gamme?: GAMME }>,
+    res: Response,
     next: NextFunction
 ) => {
     try {
-        const { id } = req.params;
-        const pool = await getConnectionPool();
-        const result = await pool
-            .request()
-            .input("ID_GAMME", sql.Int, parseInt(id)).query(`
-        DELETE FROM dbo.GAMME
-        OUTPUT DELETED.*
-        WHERE ID_GAMME = @ID_GAMME
-      `);
-
-        const deletedGamme = result.recordset[0];
+        const id = parseInt(req.params.id);
+        const deletedGamme = await gammeService.delete(id);
         if (!deletedGamme) {
             res.status(404).json({ message: "Gamme not found" });
         } else {

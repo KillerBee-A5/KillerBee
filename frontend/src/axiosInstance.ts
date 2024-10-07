@@ -13,7 +13,7 @@ axiosInstance.interceptors.request.use(
       const encryptedData: Record<string, any> = {};
       for (const key in config.data) {
         if (typeof config.data[key] === "string") {
-          encryptedData[key] = caesarEncrypt(config.data[key], 3);
+          encryptedData[key] = caesarEncrypt(config.data[key]);
         } else {
           encryptedData[key] = config.data[key];
         }
@@ -34,7 +34,7 @@ axiosInstance.interceptors.response.use(
       const decryptedData: Record<string, any> = {};
       for (const key in response.data) {
         if (typeof response.data[key] === "string") {
-          decryptedData[key] = caesarDecrypt(response.data[key], 3);
+          decryptedData[key] = caesarDecrypt(response.data[key]);
         } else {
           decryptedData[key] = response.data[key];
         }

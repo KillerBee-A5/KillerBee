@@ -1,14 +1,19 @@
-import { Router } from "express";
+import express from "express";
 import {
-    getAllConstituer,
+    getAllConstituers,
+    getConstituerById,
     createConstituer,
+    updateConstituer,
     deleteConstituer,
 } from "../controllers/constituerController";
 
-const router = Router();
+const router = express.Router();
 
-router.get("/", getAllConstituer);
+// Routes pour les opérations CRUD sur CONSTITUER
+router.get("/", getAllConstituers);
+router.get("/:id", getConstituerById);
 router.post("/", createConstituer);
-router.delete("/", deleteConstituer);
+router.put("/:id", updateConstituer);
+router.delete("/:id", deleteConstituer);
 
 export default router;

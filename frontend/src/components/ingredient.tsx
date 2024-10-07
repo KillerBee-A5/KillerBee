@@ -41,6 +41,7 @@ export const IngredientCreate: React.FC<CreateProps> = (props) => (
 export const IngredientEdit: React.FC<EditProps> = (props) => (
   <Edit {...props}>
     <SimpleForm>
+      <TextInput disabled source="id" label="ID" />
       <TextInput source="NOM_INGREDIENT" label="Nom" />
       <TextInput source="DESCRIPTION_INGREDIENT" label="Description" />
     </SimpleForm>

@@ -41,6 +41,7 @@ export const EtapeCreate: React.FC<CreateProps> = (props) => (
 export const EtapeEdit: React.FC<EditProps> = (props) => (
   <Edit {...props}>
     <SimpleForm>
+      <TextInput disabled source="id" label="ID" />
       <TextInput source="NOM_ETAPE" label="Nom" />
       <TextInput source="DESCRIPTION_ETAPE" label="Description" />
     </SimpleForm>

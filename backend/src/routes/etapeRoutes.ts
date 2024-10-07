@@ -1,4 +1,4 @@
-import { Router } from "express";
+import express from "express";
 import {
     getAllEtapes,
     getEtapeById,
@@ -7,8 +7,9 @@ import {
     deleteEtape,
 } from "../controllers/etapeController";
 
-const router = Router();
+const router = express.Router();
 
+// Routes pour les opérations CRUD sur ETAPE
 router.get("/", getAllEtapes);
 router.get("/:id", getEtapeById);
 router.post("/", createEtape);
