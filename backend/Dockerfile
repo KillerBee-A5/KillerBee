@@ -1,5 +1,5 @@
 # Étape 1 : Construction
-FROM node:16-alpine AS build
+FROM node:18-alpine AS build
 
 WORKDIR /app
 
@@ -16,26 +16,25 @@ COPY . .
 RUN npm run build
 
 # Étape 2 : Production
-FROM node:16-alpine
+FROM node:18-alpine
 
 WORKDIR /app
 
 # Copier les fichiers compilés depuis l'étape de build
 COPY --from=build /app/dist ./dist
+
+# Copier uniquement les dépendances de production
 COPY --from=build /app/package.json ./
 COPY --from=build /app/package-lock.json ./
 
-# Installer les dépendances de production
 RUN npm install --only=production
 
-# Copier le script wait-for-it.sh dans l'image Docker
+# Copier le script wait-for-it.sh
 COPY --from=build /app/scripts/wait-for-it.sh /usr/local/bin/wait-for-it.sh
-
-# Donner les permissions d'exécution au script
 RUN chmod +x /usr/local/bin/wait-for-it.sh
 
 # Exposer le port
 EXPOSE 3000
 
 # Commande pour démarrer l'application avec le script
-CMD ["wait-for-it.sh", "db:1433", "--", "node", "dist/app.js"]
+CMD ["wait-for-it.sh", "db:1433", "--", "node", "dist/server.js"]
