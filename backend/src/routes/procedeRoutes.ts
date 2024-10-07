@@ -1,18 +1,19 @@
-import { Router } from "express";
+import express from "express";
 import {
-    getAllProcedes,
-    getProcedeById,
-    createProcede,
-    updateProcede,
-    deleteProcede,
+    getAllProceedes,
+    getProceedById,
+    createProceed,
+    updateProceed,
+    deleteProceed,
 } from "../controllers/procedeController";
 
-const router = Router();
+const router = express.Router();
 
-router.get("/", getAllProcedes);
-router.get("/:id", getProcedeById);
-router.post("/", createProcede);
-router.put("/:id", updateProcede);
-router.delete("/:id", deleteProcede);
+// Routes pour les opérations CRUD sur PROCEDE
+router.get("/", getAllProceedes);
+router.get("/:id", getProceedById);
+router.post("/", createProceed);
+router.put("/:id", updateProceed);
+router.delete("/:id", deleteProceed);
 
 export default router;

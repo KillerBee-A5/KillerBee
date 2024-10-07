@@ -1,36 +1,36 @@
+// src/controllers/etapeController.ts
 import { Request, Response, NextFunction } from "express";
-import { getConnectionPool } from "../services/db";
-import { ETAPE } from "../models";
-import sql from "mssql";
+import { EtapeService } from "../services/etapeService";
 
+const etapeService = new EtapeService();
+
+/**
+ * Récupère tous les ETAPE.
+ */
 export const getAllEtapes = async (
     req: Request,
-    res: Response<ETAPE[]>,
+    res: Response,
     next: NextFunction
 ) => {
     try {
-        const pool = await getConnectionPool();
-        const result = await pool.request().query("SELECT * FROM dbo.ETAPE");
-        res.json(result.recordset);
+        const etapes = await etapeService.getAll();
+        res.json(etapes);
     } catch (err) {
         next(err);
     }
 };
 
+/**
+ * Récupère un ETAPE par ID_ETAPE.
+ */
 export const getEtapeById = async (
     req: Request<{ id: string }>,
-    res: Response<ETAPE | { message: string }>,
+    res: Response,
     next: NextFunction
 ) => {
     try {
-        const { id } = req.params;
-        const pool = await getConnectionPool();
-        const result = await pool
-            .request()
-            .input("ID_ETAPE", sql.Int, parseInt(id))
-            .query("SELECT * FROM dbo.ETAPE WHERE ID_ETAPE = @ID_ETAPE");
-
-        const etape = result.recordset[0];
+        const id = parseInt(req.params.id);
+        const etape = await etapeService.getById(id);
         if (!etape) {
             res.status(404).json({ message: "Etape not found" });
         } else {
@@ -41,52 +41,33 @@ export const getEtapeById = async (
     }
 };
 
+/**
+ * Crée un nouveau ETAPE.
+ */
 export const createEtape = async (
-    req: Request<{}, {}, Omit<ETAPE, "ID_ETAPE">>,
-    res: Response<ETAPE>,
+    req: Request,
+    res: Response,
     next: NextFunction
 ) => {
     try {
-        const { NOM_ETAPE, DESCRIPTION_ETAPE } = req.body;
-        const pool = await getConnectionPool();
-        const result = await pool
-            .request()
-            .input("NOM_ETAPE", sql.VarChar(100), NOM_ETAPE)
-            .input("DESCRIPTION_ETAPE", sql.VarChar(250), DESCRIPTION_ETAPE)
-            .query(`
-        INSERT INTO dbo.ETAPE (NOM_ETAPE, DESCRIPTION_ETAPE)
-        OUTPUT INSERTED.*
-        VALUES (@NOM_ETAPE, @DESCRIPTION_ETAPE)
-      `);
-        res.status(201).json(result.recordset[0]);
+        const newEtape = await etapeService.create(req.body);
+        res.status(201).json(newEtape);
     } catch (err) {
         next(err);
     }
 };
 
+/**
+ * Met à jour un ETAPE existant.
+ */
 export const updateEtape = async (
-    req: Request<{ id: string }, {}, Omit<ETAPE, "ID_ETAPE">>,
-    res: Response<ETAPE | { message: string }>,
+    req: Request<{ id: string }>,
+    res: Response,
     next: NextFunction
 ) => {
     try {
-        const { id } = req.params;
-        const { NOM_ETAPE, DESCRIPTION_ETAPE } = req.body;
-        const pool = await getConnectionPool();
-        const result = await pool
-            .request()
-            .input("ID_ETAPE", sql.Int, parseInt(id))
-            .input("NOM_ETAPE", sql.VarChar(100), NOM_ETAPE)
-            .input("DESCRIPTION_ETAPE", sql.VarChar(250), DESCRIPTION_ETAPE)
-            .query(`
-        UPDATE dbo.ETAPE
-        SET NOM_ETAPE = @NOM_ETAPE,
-            DESCRIPTION_ETAPE = @DESCRIPTION_ETAPE
-        OUTPUT INSERTED.*
-        WHERE ID_ETAPE = @ID_ETAPE
-      `);
-
-        const updatedEtape = result.recordset[0];
+        const id = parseInt(req.params.id);
+        const updatedEtape = await etapeService.update(id, req.body);
         if (!updatedEtape) {
             res.status(404).json({ message: "Etape not found" });
         } else {
@@ -97,23 +78,17 @@ export const updateEtape = async (
     }
 };
 
+/**
+ * Supprime un ETAPE par ID_ETAPE.
+ */
 export const deleteEtape = async (
     req: Request<{ id: string }>,
-    res: Response<{ message: string; etape?: ETAPE }>,
+    res: Response,
     next: NextFunction
 ) => {
     try {
-        const { id } = req.params;
-        const pool = await getConnectionPool();
-        const result = await pool
-            .request()
-            .input("ID_ETAPE", sql.Int, parseInt(id)).query(`
-        DELETE FROM dbo.ETAPE
-        OUTPUT DELETED.*
-        WHERE ID_ETAPE = @ID_ETAPE
-      `);
-
-        const deletedEtape = result.recordset[0];
+        const id = parseInt(req.params.id);
+        const deletedEtape = await etapeService.delete(id);
         if (!deletedEtape) {
             res.status(404).json({ message: "Etape not found" });
         } else {

@@ -5,6 +5,8 @@ services:
       dockerfile: Dockerfile
     environment:
       - VITE_API_URL=${VITE_API_URL}
+      - VITE_HOST=${VITE_HOST}
+      - VITE_CAESAR_SHIFT=${VITE_CAESAR_SHIFT}
     ports:
       - "80:4173"
     depends_on:

@@ -1,14 +1,19 @@
-import { Router } from "express";
+import express from "express";
 import {
-    getAllComposer,
+    getAllComposers,
+    getComposerById,
     createComposer,
+    updateComposer,
     deleteComposer,
 } from "../controllers/composerController";
 
-const router = Router();
+const router = express.Router();
 
-router.get("/", getAllComposer);
+// Routes pour les opérations CRUD sur COMPOSER
+router.get("/", getAllComposers);
+router.get("/:id", getComposerById);
 router.post("/", createComposer);
-router.delete("/", deleteComposer);
+router.put("/:id", updateComposer);
+router.delete("/:id", deleteComposer);
 
 export default router;

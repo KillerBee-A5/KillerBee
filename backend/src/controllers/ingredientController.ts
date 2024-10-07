@@ -1,42 +1,38 @@
+// src/controllers/ingredientController.ts
 import { Request, Response, NextFunction } from "express";
-import { getConnectionPool } from "../services/db";
-import { INGREDIENT } from "../models";
-import sql from "mssql";
+import { IngredientService } from "../services/ingredientService";
 
+const ingredientService = new IngredientService();
+
+/**
+ * Récupère tous les INGREDIENT.
+ */
 export const getAllIngredients = async (
     req: Request,
-    res: Response<INGREDIENT[]>,
+    res: Response,
     next: NextFunction
 ) => {
     try {
-        const pool = await getConnectionPool();
-        const result = await pool
-            .request()
-            .query("SELECT * FROM dbo.INGREDIENT");
-        res.json(result.recordset);
+        const ingredients = await ingredientService.getAll();
+        res.json(ingredients);
     } catch (err) {
         next(err);
     }
 };
 
+/**
+ * Récupère un INGREDIENT par ID_INGREDIENT.
+ */
 export const getIngredientById = async (
     req: Request<{ id: string }>,
-    res: Response<INGREDIENT | { message: string }>,
+    res: Response,
     next: NextFunction
 ) => {
     try {
-        const { id } = req.params;
-        const pool = await getConnectionPool();
-        const result = await pool
-            .request()
-            .input("ID_INGREDIENT", sql.Int, parseInt(id))
-            .query(
-                "SELECT * FROM dbo.INGREDIENT WHERE ID_INGREDIENT = @ID_INGREDIENT"
-            );
-
-        const ingredient = result.recordset[0];
+        const id = parseInt(req.params.id);
+        const ingredient = await ingredientService.getById(id);
         if (!ingredient) {
-            res.status(404).json({ message: "Ingrédient not found" });
+            res.status(404).json({ message: "Ingredient not found" });
         } else {
             res.json(ingredient);
         }
@@ -45,60 +41,35 @@ export const getIngredientById = async (
     }
 };
 
+/**
+ * Crée un nouvel INGREDIENT.
+ */
 export const createIngredient = async (
-    req: Request<{}, {}, Omit<INGREDIENT, "ID_INGREDIENT">>,
-    res: Response<INGREDIENT>,
+    req: Request,
+    res: Response,
     next: NextFunction
 ) => {
     try {
-        const { NOM_INGREDIENT, DESCRIPTION_INGREDIENT } = req.body;
-        const pool = await getConnectionPool();
-        const result = await pool
-            .request()
-            .input("NOM_INGREDIENT", sql.VarChar(100), NOM_INGREDIENT)
-            .input(
-                "DESCRIPTION_INGREDIENT",
-                sql.VarChar(250),
-                DESCRIPTION_INGREDIENT
-            ).query(`
-        INSERT INTO dbo.INGREDIENT (NOM_INGREDIENT, DESCRIPTION_INGREDIENT)
-        OUTPUT INSERTED.*
-        VALUES (@NOM_INGREDIENT, @DESCRIPTION_INGREDIENT)
-      `);
-        res.status(201).json(result.recordset[0]);
+        const newIngredient = await ingredientService.create(req.body);
+        res.status(201).json(newIngredient);
     } catch (err) {
         next(err);
     }
 };
 
+/**
+ * Met à jour un INGREDIENT existant.
+ */
 export const updateIngredient = async (
-    req: Request<{ id: string }, {}, Omit<INGREDIENT, "ID_INGREDIENT">>,
-    res: Response<INGREDIENT | { message: string }>,
+    req: Request<{ id: string }>,
+    res: Response,
     next: NextFunction
 ) => {
     try {
-        const { id } = req.params;
-        const { NOM_INGREDIENT, DESCRIPTION_INGREDIENT } = req.body;
-        const pool = await getConnectionPool();
-        const result = await pool
-            .request()
-            .input("ID_INGREDIENT", sql.Int, parseInt(id))
-            .input("NOM_INGREDIENT", sql.VarChar(100), NOM_INGREDIENT)
-            .input(
-                "DESCRIPTION_INGREDIENT",
-                sql.VarChar(250),
-                DESCRIPTION_INGREDIENT
-            ).query(`
-        UPDATE dbo.INGREDIENT
-        SET NOM_INGREDIENT = @NOM_INGREDIENT,
-            DESCRIPTION_INGREDIENT = @DESCRIPTION_INGREDIENT
-        OUTPUT INSERTED.*
-        WHERE ID_INGREDIENT = @ID_INGREDIENT
-      `);
-
-        const updatedIngredient = result.recordset[0];
+        const id = parseInt(req.params.id);
+        const updatedIngredient = await ingredientService.update(id, req.body);
         if (!updatedIngredient) {
-            res.status(404).json({ message: "Ingrédient not found" });
+            res.status(404).json({ message: "Ingredient not found" });
         } else {
             res.json(updatedIngredient);
         }
@@ -107,28 +78,22 @@ export const updateIngredient = async (
     }
 };
 
+/**
+ * Supprime un INGREDIENT par ID_INGREDIENT.
+ */
 export const deleteIngredient = async (
     req: Request<{ id: string }>,
-    res: Response<{ message: string; ingredient?: INGREDIENT }>,
+    res: Response,
     next: NextFunction
 ) => {
     try {
-        const { id } = req.params;
-        const pool = await getConnectionPool();
-        const result = await pool
-            .request()
-            .input("ID_INGREDIENT", sql.Int, parseInt(id)).query(`
-        DELETE FROM dbo.INGREDIENT
-        OUTPUT DELETED.*
-        WHERE ID_INGREDIENT = @ID_INGREDIENT
-      `);
-
-        const deletedIngredient = result.recordset[0];
+        const id = parseInt(req.params.id);
+        const deletedIngredient = await ingredientService.delete(id);
         if (!deletedIngredient) {
-            res.status(404).json({ message: "Ingrédient not found" });
+            res.status(404).json({ message: "Ingredient not found" });
         } else {
             res.json({
-                message: "Ingrédient deleted successfully",
+                message: "Ingredient deleted successfully",
                 ingredient: deletedIngredient,
             });
         }

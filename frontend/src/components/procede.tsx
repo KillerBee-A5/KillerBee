@@ -41,6 +41,7 @@ export const ProcedeCreate: React.FC<CreateProps> = (props) => (
 export const ProcedeEdit: React.FC<EditProps> = (props) => (
   <Edit {...props}>
     <SimpleForm>
+      <TextInput disabled source="id" label="ID" />
       <TextInput source="NOM_PROCEDE" label="Nom" />
       <TextInput source="DESCRIPTION_PROCEDE" label="Description" />
     </SimpleForm>

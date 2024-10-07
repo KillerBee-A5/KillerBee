@@ -14,7 +14,9 @@ import {
   EditProps,
 } from "react-admin";
 
-// Liste des Gammes
+/**
+ * Liste des Gammes
+ */
 export const GammeList: React.FC<ListProps> = (props) => (
   <List {...props}>
     <Datagrid>
@@ -26,7 +28,9 @@ export const GammeList: React.FC<ListProps> = (props) => (
   </List>
 );
 
-// Création d'une Gamme
+/**
+ * Création d'une Gamme
+ */
 export const GammeCreate: React.FC<CreateProps> = (props) => (
   <Create {...props}>
     <SimpleForm>
@@ -35,10 +39,13 @@ export const GammeCreate: React.FC<CreateProps> = (props) => (
   </Create>
 );
 
-// Édition d'une Gamme
+/**
+ * Édition d'une Gamme
+ */
 export const GammeEdit: React.FC<EditProps> = (props) => (
   <Edit {...props}>
     <SimpleForm>
+      <TextInput disabled source="id" label="ID" />
       <TextInput source="NOM_GAMME" label="Nom" />
     </SimpleForm>
   </Edit>

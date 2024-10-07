@@ -1,60 +1,101 @@
 import { Request, Response, NextFunction } from "express";
-import { getConnectionPool } from "../services/db";
-import { COMPOSER } from "../models";
-import sql from "mssql";
+import { ComposerService } from "../services/composerService";
 
-export const getAllComposer = async (
+const composerService = new ComposerService();
+
+/**
+ * Récupère tous les COMPOSER.
+ */
+export const getAllComposers = async (
     req: Request,
-    res: Response<COMPOSER[]>,
+    res: Response,
     next: NextFunction
 ) => {
     try {
-        const pool = await getConnectionPool();
-        const result = await pool.request().query("SELECT * FROM dbo.COMPOSER");
-        res.json(result.recordset);
+        const composers = await composerService.getAll();
+        res.json(composers);
     } catch (err) {
         next(err);
     }
 };
 
+/**
+ * Récupère un COMPOSER par ID.
+ */
+export const getComposerById = async (
+    req: Request<{ id: string }>,
+    res: Response,
+    next: NextFunction
+) => {
+    try {
+        const id = parseInt(req.params.id);
+        const composer = await composerService.getById(id);
+        if (!composer) {
+            res.status(404).json({ message: "Composer not found" });
+        } else {
+            res.json(composer);
+        }
+    } catch (err) {
+        next(err);
+    }
+};
+
+/**
+ * Crée un nouveau COMPOSER.
+ */
 export const createComposer = async (
-    req: Request<{}, {}, COMPOSER>,
-    res: Response<{ message: string }>,
+    req: Request,
+    res: Response,
     next: NextFunction
 ) => {
     try {
-        const { ID_PROCEDE, ID_ETAPE, ORDRE } = req.body;
-        const pool = await getConnectionPool();
-        await pool
-            .request()
-            .input("ID_PROCEDE", sql.Int, ID_PROCEDE)
-            .input("ID_ETAPE", sql.Int, ID_ETAPE)
-            .input("ORDRE", sql.Int, ORDRE).query(`
-        INSERT INTO dbo.COMPOSER (ID_PROCEDE, ID_ETAPE, ORDRE)
-        VALUES (@ID_PROCEDE, @ID_ETAPE, @ORDRE)
-      `);
-        res.status(201).json({ message: "Association created successfully" });
+        const newComposer = await composerService.create(req.body);
+        res.status(201).json(newComposer);
     } catch (err) {
         next(err);
     }
 };
 
-export const deleteComposer = async (
-    req: Request<{}, {}, { ID_PROCEDE: number; ID_ETAPE: number }>,
-    res: Response<{ message: string }>,
+/**
+ * Met à jour un COMPOSER existant.
+ */
+export const updateComposer = async (
+    req: Request<{ id: string }>,
+    res: Response,
     next: NextFunction
 ) => {
     try {
-        const { ID_PROCEDE, ID_ETAPE } = req.body;
-        const pool = await getConnectionPool();
-        await pool
-            .request()
-            .input("ID_PROCEDE", sql.Int, ID_PROCEDE)
-            .input("ID_ETAPE", sql.Int, ID_ETAPE).query(`
-        DELETE FROM dbo.COMPOSER
-        WHERE ID_PROCEDE = @ID_PROCEDE AND ID_ETAPE = @ID_ETAPE
-      `);
-        res.json({ message: "Association deleted successfully" });
+        const id = parseInt(req.params.id);
+        const updatedComposer = await composerService.update(id, req.body);
+        if (!updatedComposer) {
+            res.status(404).json({ message: "Composer not found" });
+        } else {
+            res.json(updatedComposer);
+        }
+    } catch (err) {
+        next(err);
+    }
+};
+
+/**
+ * Supprime un COMPOSER par ID.
+ */
+export const deleteComposer = async (
+    req: Request<{ id: string }>,
+    res: Response,
+    next: NextFunction
+) => {
+    try {
+        const id = parseInt(req.params.id);
+        const deletedComposer = await composerService.delete(id);
+        if (!deletedComposer) {
+            res.status(404).json({ message: "Composer not found" });
+        } else {
+            res.json({
+                message: "Composer deleted successfully",
+                composer: deletedComposer,
+            });
+        }
     } catch (err) {
         next(err);
     }

@@ -1,4 +1,4 @@
-import { Router } from "express";
+import express from "express";
 import {
     getAllIngredients,
     getIngredientById,
@@ -7,8 +7,9 @@ import {
     deleteIngredient,
 } from "../controllers/ingredientController";
 
-const router = Router();
+const router = express.Router();
 
+// Routes pour les opérations CRUD sur INGREDIENT
 router.get("/", getAllIngredients);
 router.get("/:id", getIngredientById);
 router.post("/", createIngredient);

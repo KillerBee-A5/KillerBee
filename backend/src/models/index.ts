@@ -1,23 +1,25 @@
 export interface COMPOSER {
+    id: number;
     ID_PROCEDE: number;
     ID_ETAPE: number;
     ORDRE: number;
 }
 
 export interface CONSTITUER {
+    id: number;
     ID_FRIZBEE: number;
     ID_INGREDIENT: number;
     GRAMMAGE: number;
 }
 
 export interface ETAPE {
-    ID_ETAPE: number;
+    id: number;
     NOM_ETAPE: string;
     DESCRIPTION_ETAPE: string;
 }
 
 export interface FRIZBEE {
-    ID_FRIZBEE: number;
+    id: number;
     NOM_FRIZBEE: string;
     DESCRIPTION_FRIZBEE: string;
     PUHT: number;
@@ -28,18 +30,18 @@ export interface FRIZBEE {
 }
 
 export interface GAMME {
-    ID_GAMME: number;
+    id: number;
     NOM_GAMME: string;
 }
 
 export interface INGREDIENT {
-    ID_INGREDIENT: number;
+    id: number;
     NOM_INGREDIENT: string;
     DESCRIPTION_INGREDIENT: string;
 }
 
 export interface PROCEDE {
-    ID_PROCEDE: number;
+    id: number;
     NOM_PROCEDE: string;
     DESCRIPTION_PROCEDE: string;
 }

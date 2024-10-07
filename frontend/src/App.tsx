@@ -1,5 +1,6 @@
 import { Admin, Resource } from "react-admin";
 import dataProvider from "./dataProvider";
+import { FrizbeeList, FrizbeeCreate, FrizbeeEdit } from "./components/frizbee";
 import { GammeList, GammeCreate, GammeEdit } from "./components/gamme";
 import { EtapeList, EtapeCreate, EtapeEdit } from "./components/etape";
 import { ProcedeList, ProcedeCreate, ProcedeEdit } from "./components/procede";
@@ -8,10 +9,25 @@ import {
   IngredientCreate,
   IngredientEdit,
 } from "./components/ingredient";
-import { FrizbeeList, FrizbeeCreate, FrizbeeEdit } from "./components/frizbee";
+import {
+  ComposerList,
+  ComposerEdit,
+  ComposerCreate,
+} from "./components/composer";
+import {
+  ConstituerList,
+  ConstituerEdit,
+  ConstituerCreate,
+} from "./components/constituer";
 
 export const App = () => (
   <Admin dataProvider={dataProvider}>
+    <Resource
+      name="frizbees"
+      list={FrizbeeList}
+      create={FrizbeeCreate}
+      edit={FrizbeeEdit}
+    />
     <Resource
       name="gammes"
       list={GammeList}
@@ -37,10 +53,16 @@ export const App = () => (
       edit={IngredientEdit}
     />
     <Resource
-      name="frizbees"
-      list={FrizbeeList}
-      create={FrizbeeCreate}
-      edit={FrizbeeEdit}
+      name="composer"
+      list={ComposerList}
+      edit={ComposerEdit}
+      create={ComposerCreate}
+    />
+    <Resource
+      name="constituer"
+      list={ConstituerList}
+      edit={ConstituerEdit}
+      create={ConstituerCreate}
     />
   </Admin>
 );

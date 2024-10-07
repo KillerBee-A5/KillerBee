@@ -1,38 +1,38 @@
+// src/controllers/procedeController.ts
 import { Request, Response, NextFunction } from "express";
-import { getConnectionPool } from "../services/db";
-import { PROCEDE, ETAPE } from "../models";
-import sql from "mssql";
+import { ProceedService } from "../services/procedeService";
 
-export const getAllProcedes = async (
+const proceedService = new ProceedService();
+
+/**
+ * Récupère tous les PROCEDE.
+ */
+export const getAllProceedes = async (
     req: Request,
-    res: Response<PROCEDE[]>,
+    res: Response,
     next: NextFunction
 ) => {
     try {
-        const pool = await getConnectionPool();
-        const result = await pool.request().query("SELECT * FROM dbo.PROCEDE");
-        res.json(result.recordset);
+        const proceedes = await proceedService.getAll();
+        res.json(proceedes);
     } catch (err) {
         next(err);
     }
 };
 
-export const getProcedeById = async (
+/**
+ * Récupère un PROCEDE par ID_PROCEDE.
+ */
+export const getProceedById = async (
     req: Request<{ id: string }>,
-    res: Response<PROCEDE | { message: string }>,
+    res: Response,
     next: NextFunction
 ) => {
     try {
-        const { id } = req.params;
-        const pool = await getConnectionPool();
-        const result = await pool
-            .request()
-            .input("ID_PROCEDE", sql.Int, parseInt(id))
-            .query("SELECT * FROM dbo.PROCEDE WHERE ID_PROCEDE = @ID_PROCEDE");
-
-        const procede = result.recordset[0];
+        const id = parseInt(req.params.id);
+        const procede = await proceedService.getById(id);
         if (!procede) {
-            res.status(404).json({ message: "Procédé not found" });
+            res.status(404).json({ message: "Proceed not found" });
         } else {
             res.json(procede);
         }
@@ -41,110 +41,62 @@ export const getProcedeById = async (
     }
 };
 
-export const createProcede = async (
-    req: Request<{}, {}, Omit<PROCEDE, "ID_PROCEDE">>,
-    res: Response<PROCEDE>,
+/**
+ * Crée un nouveau PROCEDE.
+ */
+export const createProceed = async (
+    req: Request,
+    res: Response,
     next: NextFunction
 ) => {
     try {
-        const { NOM_PROCEDE, DESCRIPTION_PROCEDE } = req.body;
-        const pool = await getConnectionPool();
-        const result = await pool
-            .request()
-            .input("NOM_PROCEDE", sql.VarChar(100), NOM_PROCEDE)
-            .input("DESCRIPTION_PROCEDE", sql.VarChar(250), DESCRIPTION_PROCEDE)
-            .query(`
-        INSERT INTO dbo.PROCEDE (NOM_PROCEDE, DESCRIPTION_PROCEDE)
-        OUTPUT INSERTED.*
-        VALUES (@NOM_PROCEDE, @DESCRIPTION_PROCEDE)
-      `);
-        res.status(201).json(result.recordset[0]);
+        const newProceed = await proceedService.create(req.body);
+        res.status(201).json(newProceed);
     } catch (err) {
         next(err);
     }
 };
 
-export const updateProcede = async (
-    req: Request<{ id: string }, {}, Omit<PROCEDE, "ID_PROCEDE">>,
-    res: Response<PROCEDE | { message: string }>,
+/**
+ * Met à jour un PROCEDE existant.
+ */
+export const updateProceed = async (
+    req: Request<{ id: string }>,
+    res: Response,
     next: NextFunction
 ) => {
     try {
-        const { id } = req.params;
-        const { NOM_PROCEDE, DESCRIPTION_PROCEDE } = req.body;
-        const pool = await getConnectionPool();
-        const result = await pool
-            .request()
-            .input("ID_PROCEDE", sql.Int, parseInt(id))
-            .input("NOM_PROCEDE", sql.VarChar(100), NOM_PROCEDE)
-            .input("DESCRIPTION_PROCEDE", sql.VarChar(250), DESCRIPTION_PROCEDE)
-            .query(`
-        UPDATE dbo.PROCEDE
-        SET NOM_PROCEDE = @NOM_PROCEDE,
-            DESCRIPTION_PROCEDE = @DESCRIPTION_PROCEDE
-        OUTPUT INSERTED.*
-        WHERE ID_PROCEDE = @ID_PROCEDE
-      `);
-
-        const updatedProcede = result.recordset[0];
-        if (!updatedProcede) {
-            res.status(404).json({ message: "Procédé not found" });
+        const id = parseInt(req.params.id);
+        const updatedProceed = await proceedService.update(id, req.body);
+        if (!updatedProceed) {
+            res.status(404).json({ message: "Proceed not found" });
         } else {
-            res.json(updatedProcede);
+            res.json(updatedProceed);
         }
     } catch (err) {
         next(err);
     }
 };
 
-export const deleteProcede = async (
+/**
+ * Supprime un PROCEDE par ID_PROCEDE.
+ */
+export const deleteProceed = async (
     req: Request<{ id: string }>,
-    res: Response<{ message: string; procede?: PROCEDE }>,
+    res: Response,
     next: NextFunction
 ) => {
     try {
-        const { id } = req.params;
-        const pool = await getConnectionPool();
-        const result = await pool
-            .request()
-            .input("ID_PROCEDE", sql.Int, parseInt(id)).query(`
-        DELETE FROM dbo.PROCEDE
-        OUTPUT DELETED.*
-        WHERE ID_PROCEDE = @ID_PROCEDE
-      `);
-
-        const deletedProcede = result.recordset[0];
-        if (!deletedProcede) {
-            res.status(404).json({ message: "Procédé not found" });
+        const id = parseInt(req.params.id);
+        const deletedProceed = await proceedService.delete(id);
+        if (!deletedProceed) {
+            res.status(404).json({ message: "Proceed not found" });
         } else {
             res.json({
-                message: "Procédé deleted successfully",
-                procede: deletedProcede,
+                message: "Proceed deleted successfully",
+                procede: deletedProceed,
             });
         }
-    } catch (err) {
-        next(err);
-    }
-};
-
-export const getEtapesByProcedeId = async (
-    req: Request<{ id: string }>,
-    res: Response<ETAPE[]>,
-    next: NextFunction
-) => {
-    try {
-        const { id } = req.params;
-        const pool = await getConnectionPool();
-        const result = await pool
-            .request()
-            .input("ID_PROCEDE", sql.Int, parseInt(id)).query(`
-        SELECT E.*, C.ORDRE
-        FROM dbo.COMPOSER C
-        JOIN dbo.ETAPE E ON C.ID_ETAPE = E.ID_ETAPE
-        WHERE C.ID_PROCEDE = @ID_PROCEDE
-        ORDER BY C.ORDRE
-      `);
-        res.json(result.recordset);
     } catch (err) {
         next(err);
     }

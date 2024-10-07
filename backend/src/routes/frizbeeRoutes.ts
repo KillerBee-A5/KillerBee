@@ -1,4 +1,4 @@
-import { Router } from "express";
+import express from "express";
 import {
     getAllFrizbees,
     getFrizbeeById,
@@ -7,8 +7,9 @@ import {
     deleteFrizbee,
 } from "../controllers/frizbeeController";
 
-const router = Router();
+const router = express.Router();
 
+// Routes pour les opérations CRUD sur FRIZBEE
 router.get("/", getAllFrizbees);
 router.get("/:id", getFrizbeeById);
 router.post("/", createFrizbee);
