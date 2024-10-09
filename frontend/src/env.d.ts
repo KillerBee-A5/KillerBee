@@ -1,6 +1,6 @@
 interface ImportMetaEnv {
   readonly VITE_API_URL: string;
-  readonly FRONTEND_DOMAIN: string;
+  readonly VITE_HOST: string;
   readonly VITE_CAESAR_SHIFT: number;
 }
 
