@@ -45,7 +45,6 @@
 - **Infrastructure :**
   - Docker
   - Docker Compose
-  - Traefik
   - Nginx
   - MSSQL Server
 
@@ -101,7 +100,7 @@ Le frontend est une application React qui interagit avec le backend via les endp
 Une fois les services démarrés, le frontend devrait être accessible à l'adresse suivante :
 
 ```bash
-http://localhost/frontend
+http://localhost
 ```
 
 #### Scripts Disponibles
@@ -111,7 +110,7 @@ Si vous souhaitez développer ou tester le frontend localement sans Docker :
 ```bash
 cd frontend
 npm install
-npm start    # Démarre le serveur de développement
+npm run dev    # Démarre le serveur de développement
 npm run build  # Construit l'application pour la production
 ```
 
@@ -124,7 +123,7 @@ Le backend est une application Express en TypeScript qui expose une API RESTful 
 Le backend est accessible à l'adresse suivante :
 
 ```bash
-http://localhost/api
+http://localhost:3000/api
 ```
 
 #### Scripts Disponibles
@@ -139,7 +138,7 @@ npm run build  # Compile le TypeScript en JavaScript
 npm start      # Démarre le serveur en production
 ```
 
-## Endpoints API
+## Endpoints API (à compléter)
 
 ### FRIZBEE
 
