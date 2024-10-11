@@ -1,5 +1,6 @@
 import { Admin, Resource } from "react-admin";
 import dataProvider from "./dataProvider";
+import authProvider from "./authProvider";
 import { FrizbeeList, FrizbeeCreate, FrizbeeEdit } from "./components/frizbee";
 import { GammeList, GammeCreate, GammeEdit } from "./components/gamme";
 import { EtapeList, EtapeCreate, EtapeEdit } from "./components/etape";
@@ -21,7 +22,7 @@ import {
 } from "./components/constituer";
 
 export const App = () => (
-  <Admin dataProvider={dataProvider}>
+  <Admin dataProvider={dataProvider} authProvider={authProvider}>
     <Resource
       name="frizbees"
       list={FrizbeeList}

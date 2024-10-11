@@ -25,6 +25,10 @@ services:
       - DB_USER=${DB_USER}
       - DB_PASSWORD=${DB_PASSWORD}
       - PORT=${PORT}
+      - CAESAR_SHIFT=${CAESAR_SHIFT}
+      - AD_URL=${AD_URL}
+      - AD_DOMAIN=${AD_DOMAIN}
+      - JWT_SECRET=${JWT_SECRET}
     ports:
       - "3000:3000"
     depends_on:
